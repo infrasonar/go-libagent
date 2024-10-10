@@ -14,15 +14,13 @@ import (
 	"golang.org/x/exp/rand"
 )
 
-func randInit() {
+// RandInit initializes random
+func RandInit() {
 	rand.Seed(uint64(time.Now().UnixNano()))
 }
 
-func randInt(min int, max int) int {
-	return min + rand.Intn(max-min)
-}
-
-func sigHandler(cs chan bool) {
+// SigHandler is required for handling signals
+func SigHandler(cs chan bool) {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
 
@@ -35,6 +33,10 @@ func sigHandler(cs chan bool) {
 	case syscall.SIGHUP:
 		cs <- false
 	}
+}
+
+func randInt(min int, max int) int {
+	return min + rand.Intn(max-min)
 }
 
 func fqdn() (string, error) {
