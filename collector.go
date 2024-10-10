@@ -6,8 +6,9 @@ type Collector struct {
 }
 
 // Returns a new Collector
-func NewCollector(key string) *Collector {
+func NewCollector(key string, version string) *Collector {
 	return &Collector{
-		Key: key,
+		Key:     key,
+		Version: version,
 	}
 }
