@@ -15,3 +15,68 @@ Environment                 | Default                       | Description
 `ASSET_ID`                  | _none_                        | Asset Id _(If not given, the asset Id will be stored and loaded from file)_.
 `API_URI`                   | https://api.infrasonar.com    | InfraSonar API.
 `CHECK_XXX_INTERVAL`        | `300`                         | Interval in seconds for the `xxx` check. _(should be one environment variable for each check)_
+
+
+```golang
+package main
+
+import (
+	"log"
+
+	"github.com/infrasonar/go-libagent"
+)
+
+const version = "0.1.0"
+
+func CheckSample() (map[string][]map[string]any, error) {
+	state := map[string][]map[string]any{}
+
+	// Here code to create a check state.
+
+    // Returning with an error will result in an InfraSonar Notification with
+    // a check error.
+
+    // Both a state and an error may be returned.
+
+	return state, nil
+}
+
+
+func main() {
+	// Start collector
+	log.Printf("Starting InfraSonar Example Agent Collector v%s\n", version)
+
+	// Initialize random
+	libagent.RandInit()
+
+	// Initialize Helper
+	libagent.GetHelper()
+
+	// Set-up signal handler
+	quit := make(chan bool)
+	go libagent.SigHandler(quit)
+
+	// Create Collector
+	collector := libagent.NewCollector("example", version)
+
+	// Create Asset
+	asset := libagent.NewAsset(collector)
+	//asset.Kind = "Asset" // Optionally, set the asset Kind
+	asset.Announce()
+
+	// Create and plan checks
+	checkSample := libagent.Check{
+		Key:          "sample",
+		Collector:    collector,
+		Asset:        asset,
+		IntervalEnv:  "CHECK_FIRST_INTERVAL",
+		NoCount:      false,
+		SetTimestamp: false,
+		Fn:           CheckSample,
+	}
+	go checkSample.Plan(quit)
+
+	// Wait for quit
+	<-quit
+}
+```
