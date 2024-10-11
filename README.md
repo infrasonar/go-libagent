@@ -69,7 +69,7 @@ func main() {
 		Key:          "sample",
 		Collector:    collector,
 		Asset:        asset,
-		IntervalEnv:  "CHECK_FIRST_INTERVAL",
+		IntervalEnv:  "CHECK_SAMPLE_INTERVAL",
 		NoCount:      false,
 		SetTimestamp: false,
 		Fn:           CheckSample,
