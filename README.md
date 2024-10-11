@@ -1,19 +1,17 @@
-[![CI](https://github.com/infrasonar/linux-agent/workflows/CI/badge.svg)](https://github.com/infrasonar/linux-agent/actions)
-[![Release Version](https://img.shields.io/github/release/infrasonar/linux-agent)](https://github.com/infrasonar/linux-agent/releases)
+[![CI](https://github.com/infrasonar/go-libagent/workflows/CI/badge.svg)](https://github.com/infrasonar/go-libagent/actions)
+[![Release Version](https://img.shields.io/github/release/infrasonar/go-libagent)](https://github.com/infrasonar/go-libagent/releases)
 
-# InfraSonar Linux Agent
+# Go library for building InfraSonar Probes
 
-Documentation: https://docs.infrasonar.com/collectors/agents/linux/
+This library is created for building [InfraSonar](https://infrasonar.com) probes.
 
 ## Environment variables
 
 Environment                 | Default                       | Description
 ----------------------------|-------------------------------|-------------------
-`STORAGE_PATH`              | `HOME/.infrasonar/`           | Path where files are stored
-`TOKEN`                     | _required_                    | Token to connect to.
+`STORAGE_PATH`              | `HOME/.infrasonar/`           | Path where files are stored _(not used when `ASSET_ID` is set)_.
+`TOKEN`                     | _required_                    | Token used for authentication _(This MUST be a container token)_.
 `ASSET_NAME`                | _none_                        | Initial Asset Name. This will only be used at the announce. Once the asset is created, `ASSET_NAME` will be ignored.
-`ASSET_ID`                  | `/data/.asset.json`           | Asset Id _or_ file where the Agent asset Id is stored _(must be a volume mount)_.
+`ASSET_ID`                  | _none_                        | Asset Id _(If not given, the asset Id will be stored and loaded from file)_.
 `API_URI`                   | https://api.infrasonar.com    | InfraSonar API.
-`CHECK_XXX_INTERVAL`        | `300`                         | Interval for the docker containers check in seconds.
-`VERIFY_SSL`                | `1`                           | Verify SSL certificate, 0 _(=disabled)_ or 1 _(=enabled)_.
-
+`CHECK_XXX_INTERVAL`        | `300`                         | Each check should accept an interval variable in seconds.
