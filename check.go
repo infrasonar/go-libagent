@@ -44,7 +44,7 @@ func (check *Check) Plan(quit chan bool) {
 		initWait := randInt(60, 120)
 		timer := time.NewTimer(time.Duration(initWait) * time.Second)
 
-		log.Printf("%s: %d (Inital wait: %d)\n", check.IntervalEnv, checkInterval, initWait)
+		log.Printf("Scheduled: %s: %d / Inital wait: %d\n", check.IntervalEnv, checkInterval, initWait)
 
 		select {
 		case <-timer.C:
