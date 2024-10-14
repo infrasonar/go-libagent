@@ -2,6 +2,7 @@ package libagent
 
 import (
 	"bytes"
+	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"io"
@@ -20,6 +21,11 @@ var helperInstance *helper
 
 func GetHelper() *helper {
 	if helperInstance == nil {
+		skipVerify := os.Getenv("SKIP_VERIFY")
+		if skipVerify != "" {
+			http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+		}
+
 		token := os.Getenv("TOKEN")
 		if token == "" {
 			log.Fatal("Missing TOKEN environment variable")
