@@ -18,6 +18,12 @@ Environment                 | Default                       | Description
 `CHECK_XXX_INTERVAL`        | `300`                         | Interval in seconds for the `xxx` check. _(should be one environment variable for each check)_
 
 
+## Floating points
+
+Be aware that floating points might be converted to fixed integer values. To preserve the `.0` convert floating point values to the provides `IFloat32` or `IFloat64` types.
+
+## Example
+
 ```golang
 package main
 
