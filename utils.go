@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"path"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -87,4 +88,22 @@ func getStoragePath() (string, error) {
 	}
 
 	return storagePath, nil
+}
+
+type IFloat64 float64
+
+func (f IFloat64) MarshalJSON() ([]byte, error) {
+	if float64(f) == float64(int(f)) {
+		return []byte(strconv.FormatFloat(float64(f), 'f', 1, 64)), nil
+	}
+	return []byte(strconv.FormatFloat(float64(f), 'f', -1, 64)), nil
+}
+
+type IFloat32 float32
+
+func (f IFloat32) MarshalJSON() ([]byte, error) {
+	if float32(f) == float32(int(f)) {
+		return []byte(strconv.FormatFloat(float64(f), 'f', 1, 32)), nil
+	}
+	return []byte(strconv.FormatFloat(float64(f), 'f', -1, 32)), nil
 }
