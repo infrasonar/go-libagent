@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-type checkFun func() (map[string][]map[string]any, error)
+type checkFun func(*Check) (map[string][]map[string]any, error)
 
 type Check struct {
 	Key          string
@@ -20,6 +20,10 @@ type Check struct {
 	NoCount      bool
 	SetTimestamp bool
 	Fn           checkFun
+	//Interval must not be configured on init but is calculated after calling Plan(..)
+	Interval int
+	//Data is a placeholder for custom data or simple `nil` when unused
+	Data any
 }
 
 func (check *Check) Plan(quit chan bool) {
@@ -27,24 +31,27 @@ func (check *Check) Plan(quit chan bool) {
 	if s == "" {
 		s = "300"
 	}
+	if check.Interval > 0 {
+		log.Fatal("Interval must not be configured; Instead use IntervalEnv;")
+	}
 	checkInterval, err := strconv.Atoi(s)
 	if err != nil {
 		log.Fatal(err)
 	}
-	if checkInterval < 1 {
+	check.Interval = checkInterval
+	if check.Interval < 1 {
 		log.Fatal("Error: Invalid interval time")
-	} else if checkInterval < 60 {
+	} else if check.Interval < 60 {
 		log.Printf("Warning: %s should be at least one minute (60 seconds)\n", check.IntervalEnv)
-		// Run the check immediatly as a checkInterval < 60 is only for testing
+		// Run the check immediatly as a check.Interval < 60 is only for testing
 		check.run()
-
 	} else {
 		// We should initially wait for at least a minute and add a little random
 		// to avoid different checks to run on the same time
 		initWait := randInt(60, 120)
 		timer := time.NewTimer(time.Duration(initWait) * time.Second)
 
-		log.Printf("Scheduled: %s: %d / Inital wait: %d\n", check.IntervalEnv, checkInterval, initWait)
+		log.Printf("Scheduled: %s: %d / Inital wait: %d\n", check.IntervalEnv, check.Interval, initWait)
 
 		select {
 		case <-timer.C:
@@ -56,7 +63,7 @@ func (check *Check) Plan(quit chan bool) {
 		}
 	}
 
-	ticker := time.NewTicker(time.Duration(checkInterval) * time.Second)
+	ticker := time.NewTicker(time.Duration(check.Interval) * time.Second)
 	go func() {
 		for {
 			select {
@@ -72,7 +79,7 @@ func (check *Check) Plan(quit chan bool) {
 
 func (check *Check) run() {
 	start := time.Now()
-	result, err := check.Fn()
+	result, err := check.Fn(check)
 	runtime := time.Since(start)
 	check.handleResult(runtime, result, err)
 }
