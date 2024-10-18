@@ -13,13 +13,14 @@ import (
 type checkFun func(*Check) (map[string][]map[string]any, error)
 
 type Check struct {
-	Key          string
-	Collector    *Collector
-	Asset        *Asset
-	IntervalEnv  string
-	NoCount      bool
-	SetTimestamp bool
-	Fn           checkFun
+	Key             string
+	Collector       *Collector
+	Asset           *Asset
+	IntervalEnv     string
+	DefaultInterval int
+	NoCount         bool
+	SetTimestamp    bool
+	Fn              checkFun
 	//Interval must not be configured on init but is calculated after calling Plan(..)
 	Interval int
 	//Data is a placeholder for custom data or simple `nil` when unused
@@ -28,17 +29,23 @@ type Check struct {
 
 func (check *Check) Plan(quit chan bool) {
 	s := os.Getenv(check.IntervalEnv)
-	if s == "" {
-		s = "300"
-	}
 	if check.Interval > 0 {
 		log.Fatal("Interval must not be configured; Instead use IntervalEnv;")
 	}
-	checkInterval, err := strconv.Atoi(s)
-	if err != nil {
-		log.Fatal(err)
+	if s == "" {
+		if check.DefaultInterval > 0 {
+			check.Interval = check.DefaultInterval
+		} else {
+			check.Interval = 300
+		}
+	} else {
+		checkInterval, err := strconv.Atoi(s)
+		if err != nil {
+			log.Fatal(err)
+		}
+		check.Interval = checkInterval
 	}
-	check.Interval = checkInterval
+
 	if check.Interval < 1 {
 		log.Fatal("Error: Invalid interval time")
 	} else if check.Interval < 60 {
