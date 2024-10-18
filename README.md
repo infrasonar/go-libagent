@@ -73,13 +73,14 @@ func main() {
 
 	// Create and plan checks
 	checkSample := libagent.Check{
-		Key:          "sample",
-		Collector:    collector,
-		Asset:        asset,
-		IntervalEnv:  "CHECK_SAMPLE_INTERVAL",
-		NoCount:      false,
-		SetTimestamp: false,
-		Fn:           CheckSample,
+		Key:             "sample",
+		Collector:       collector,
+		Asset:           asset,
+		IntervalEnv:     "CHECK_SAMPLE_INTERVAL",
+		DefaultInterval: 300,
+		NoCount:         false,
+		SetTimestamp:    false,
+		Fn:              CheckSample,
 	}
 	go checkSample.Plan(quit)
 
