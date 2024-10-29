@@ -14,7 +14,7 @@ Environment                 | Default                       | Description
 `ASSET_NAME`                | _none_                        | Initial Asset Name. This will only be used at the announce. Once the asset is created, `ASSET_NAME` will be ignored.
 `ASSET_ID`                  | _none_                        | Asset Id _(If not given, the asset Id will be stored and loaded from file)_.
 `API_URI`                   | https://api.infrasonar.com    | InfraSonar API.
-`SKIP_VERIFY`				| _none_						| Set to `1` or something else to skip certificate validation.
+`SKIP_VERIFY`               | _none_						| Set to `1` or something else to skip certificate validation.
 `CHECK_XXX_INTERVAL`        | `300`                         | Interval in seconds for the `xxx` check. _(should be one environment variable for each check)_
 
 
@@ -40,10 +40,10 @@ func CheckSample() (map[string][]map[string]any, error) {
 
 	// Here code to create a check state.
 
-    // Returning with an error will result in an InfraSonar Notification with
-    // a check error.
+	// Returning with an error will result in an InfraSonar Notification with
+	// a check error.
 
-    // Both a state and an error may be returned.
+	// Both a state and an error may be returned.
 
 	// Example state (type: agent):
 
