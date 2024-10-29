@@ -31,12 +31,12 @@ func NewAsset(collector *Collector) *Asset {
 		log.Println("Invalid ASSET_ID environment variable")
 	}
 
-	storagePath, err := getStoragePath()
+	configPath, err := getConfigPath()
 	if err != nil {
 		// This is fatal, if no ENV is used, we need a place to write an asset Id
-		log.Fatal("Error while reading storage path: ", err)
+		log.Fatal("Error while reading config path (check the CONFIG_PATH environment variable): ", err)
 	}
-	assetFile := path.Join(storagePath, "asset.json")
+	assetFile := path.Join(configPath, "asset.json")
 
 	_, err = os.Stat(assetFile)
 	if err == nil {

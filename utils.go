@@ -70,24 +70,30 @@ func fqdn() (string, error) {
 	return "", errors.New("no FQDN could be found")
 }
 
-func getStoragePath() (string, error) {
-	storagePath := os.Getenv("STORAGE_PATH")
-	if storagePath == "" {
-		homeDir, err := os.UserHomeDir()
-		if err != nil {
-			return "", errors.New("failed to find the use HOME path, try to set `STORAGE_PATH` to work arround this issue")
-		}
-		storagePath = path.Join(homeDir, ".infrasonar")
+func getConfigPath() (string, error) {
+	configPath := os.Getenv("CONFIG_PATH")
+	if configPath == "" {
+		// Fallback to `STORAGE_PATH`
+		configPath = os.Getenv("STORAGE_PATH")
 	}
-	_, err := os.Stat(storagePath)
+	if configPath == "" {
+		homeDir, err := os.UserHomeDir()
+		if err == nil {
+			configPath = path.Join(homeDir, ".infrasonar")
+		} else {
+			configPath = "/etc/infrasonar"
+		}
+
+	}
+	_, err := os.Stat(configPath)
 	if os.IsNotExist(err) {
-		err := os.MkdirAll(storagePath, os.ModePerm)
+		err := os.MkdirAll(configPath, os.ModePerm)
 		if err != nil {
 			return "", err
 		}
 	}
 
-	return storagePath, nil
+	return configPath, nil
 }
 
 type IFloat64 float64

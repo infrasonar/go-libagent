@@ -9,7 +9,7 @@ This library is created for building [InfraSonar](https://infrasonar.com) probes
 
 Environment                 | Default                       | Description
 ----------------------------|-------------------------------|-------------------
-`STORAGE_PATH`              | `HOME/.infrasonar/`           | Path where files are stored _(not used when `ASSET_ID` is set)_.
+`CONFIG_PATH`       		| `/etc/infrasonar` 			| Path where configuration files are loaded and stored _(note: for a user, the `$HOME` path will be used instead of `/etc`)_
 `TOKEN`                     | _required_                    | Token used for authentication _(This MUST be a container token)_.
 `ASSET_NAME`                | _none_                        | Initial Asset Name. This will only be used at the announce. Once the asset is created, `ASSET_NAME` will be ignored.
 `ASSET_ID`                  | _none_                        | Asset Id _(If not given, the asset Id will be stored and loaded from file)_.
@@ -45,9 +45,15 @@ func CheckSample() (map[string][]map[string]any, error) {
 
     // Both a state and an error may be returned.
 
+	// Example state (type: agent):
+
+	state["agent"] = []map[string]any{{
+		"name":    "example",
+		"version": version,
+	}}
+
 	return state, nil
 }
-
 
 func main() {
 	// Start collector
