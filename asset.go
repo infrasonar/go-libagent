@@ -76,7 +76,7 @@ func (asset *Asset) Announce() {
 		} `json:"collectors"`
 	}
 	t := Tasset{}
-	err := h.Get(uri, &t)
+	err := h.Get(uri, &t, 90)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -92,7 +92,7 @@ func (asset *Asset) Announce() {
 	}
 	if !found {
 		uri = fmt.Sprintf("/asset/%d/collector/%s", asset.Id, asset.collector.Key)
-		err = h.Post(uri, nil, nil)
+		err = h.Post(uri, nil, nil, 0)
 		if err != nil {
 			log.Printf("Error while assining collector: %s", err)
 		}
@@ -120,7 +120,7 @@ func (asset *Asset) Create() {
 
 	tcid := TcontainerId{}
 
-	err := h.Get("/container/id", &tcid)
+	err := h.Get("/container/id", &tcid, 90)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -137,7 +137,7 @@ func (asset *Asset) Create() {
 	taid := TassetId{}
 	uri := fmt.Sprintf("/container/%d/asset", tcid.ContainerId)
 
-	err = h.Post(uri, &taid, data)
+	err = h.Post(uri, &taid, data, 0)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -145,7 +145,7 @@ func (asset *Asset) Create() {
 	asset.Id = taid.AssetId
 
 	uri = fmt.Sprintf("/asset/%d/collector/%s", asset.Id, asset.collector.Key)
-	err = h.Post(uri, nil, nil)
+	err = h.Post(uri, nil, nil, 0)
 	if err != nil {
 		log.Printf("Error while assining collector: %s", err)
 	}
@@ -156,7 +156,7 @@ func (asset *Asset) Create() {
 		}
 		data := Tkind{Kind: asset.Kind}
 		uri = fmt.Sprintf("/asset/%d/kind", asset.Id)
-		err = h.Patch(uri, nil, data)
+		err = h.Patch(uri, nil, data, 0)
 		if err != nil {
 			log.Printf("Error while setting asset kind: %s", err)
 		}

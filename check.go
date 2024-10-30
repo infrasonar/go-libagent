@@ -125,7 +125,7 @@ func (check *Check) handleResult(runtime time.Duration, result map[string][]map[
 		h := GetHelper()
 		uri := fmt.Sprintf("/asset/%d/collector/%s/check/%s", check.Asset.Id, check.Collector.Key, check.Key)
 		reader := bytes.NewReader(data)
-		err := h.PostRaw(uri, reader)
+		err := h.PostRaw(uri, reader, 2)
 		if err != nil {
 			log.Printf("Error while sending check data: %s\n", err)
 		}

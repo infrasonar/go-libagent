@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 )
 
 type helper struct {
@@ -61,26 +62,35 @@ func handleResp(resp *http.Response, t any) error {
 	return json.NewDecoder(resp.Body).Decode(&t)
 }
 
-func doReq(req *http.Request, t any) error {
+func doReq(req *http.Request, t any, retry int) error {
 	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
+	for {
+		resp, err := client.Do(req)
+		if err == nil {
+			return handleResp(resp, t)
+		}
+
+		// check if end condition is met
+		if retry <= 0 {
+			return err
+		}
+		log.Printf("%v (try again in 10 seconds)\n", err)
+		time.Sleep(10 * time.Second)
+		retry--
 	}
-	return handleResp(resp, t)
 }
 
-func (h *helper) Get(uri string, t any) error {
+func (h *helper) Get(uri string, t any, retry int) error {
 	req, err := http.NewRequest("GET", h.apiUri+uri, nil)
 	if err != nil {
 		return err
 	}
 	req.Header.Set("Authorization", h.authorization)
 
-	return doReq(req, t)
+	return doReq(req, t, retry)
 }
 
-func (h *helper) Post(uri string, t any, v any) error {
+func (h *helper) Post(uri string, t any, v any, retry int) error {
 	b := new(bytes.Buffer)
 	if v != nil {
 		err := json.NewEncoder(b).Encode(v)
@@ -95,10 +105,10 @@ func (h *helper) Post(uri string, t any, v any) error {
 	req.Header.Set("Authorization", h.authorization)
 	req.Header.Set("Content-Type", "application/json")
 
-	return doReq(req, t)
+	return doReq(req, t, retry)
 }
 
-func (h *helper) PostRaw(uri string, body io.Reader) error {
+func (h *helper) PostRaw(uri string, body io.Reader, retry int) error {
 	req, err := http.NewRequest("POST", h.apiUri+uri, body)
 	if err != nil {
 		return err
@@ -106,10 +116,10 @@ func (h *helper) PostRaw(uri string, body io.Reader) error {
 	req.Header.Set("Authorization", h.authorization)
 	req.Header.Set("Content-Type", "application/json")
 
-	return doReq(req, nil)
+	return doReq(req, nil, retry)
 }
 
-func (h *helper) Patch(uri string, t any, v any) error {
+func (h *helper) Patch(uri string, t any, v any, retry int) error {
 	b := new(bytes.Buffer)
 	if v != nil {
 		err := json.NewEncoder(b).Encode(v)
@@ -124,5 +134,5 @@ func (h *helper) Patch(uri string, t any, v any) error {
 	req.Header.Set("Authorization", h.authorization)
 	req.Header.Set("Content-Type", "application/json")
 
-	return doReq(req, t)
+	return doReq(req, t, retry)
 }
