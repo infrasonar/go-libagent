@@ -46,8 +46,11 @@ func (check *Check) Plan(quit chan bool) {
 		check.Interval = checkInterval
 	}
 
-	if check.Interval < 1 {
+	if check.Interval < 0 {
 		log.Fatal("Error: Invalid interval time")
+	} else if check.Interval == 0 {
+		log.Printf("Warning: %s is disabled (%s=0)\n", check.Key, check.IntervalEnv)
+		return // Do not plan this check
 	} else if check.Interval < 60 {
 		log.Printf("Warning: %s should be at least one minute (60 seconds)\n", check.IntervalEnv)
 		// Run the check immediatly as a check.Interval < 60 is only for testing

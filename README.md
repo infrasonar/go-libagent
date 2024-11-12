@@ -15,7 +15,7 @@ Environment                 | Default                       | Description
 `ASSET_ID`                  | _none_                        | Asset Id _(If not given, the asset Id will be stored and loaded from file)_.
 `API_URI`                   | https://api.infrasonar.com    | InfraSonar API.
 `SKIP_VERIFY`               | _none_						| Set to `1` or something else to skip certificate validation.
-`CHECK_XXX_INTERVAL`        | `300`                         | Interval in seconds for the `xxx` check. _(should be one environment variable for each check)_
+`CHECK_XXX_INTERVAL`        | `300`                         | Interval in seconds for the `xxx` check or `0` to disable the check. _(should be one environment variable for each check)_
 
 
 ## Floating points
