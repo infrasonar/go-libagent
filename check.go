@@ -53,19 +53,19 @@ func (check *Check) Plan(quit chan bool) {
 		return // Do not plan this check
 	} else if check.Interval < 60 {
 		log.Printf("Warning: %s should be at least one minute (60 seconds)\n", check.IntervalEnv)
-		// Run the check immediatly as a check.Interval < 60 is only for testing
-		check.run()
+		// Run the check immediately as a check.Interval < 60 is only for testing
+		check.Run()
 	} else {
 		// We should initially wait for at least a minute and add a little random
 		// to avoid different checks to run on the same time
 		initWait := randInt(60, 120)
 		timer := time.NewTimer(time.Duration(initWait) * time.Second)
 
-		log.Printf("Scheduled: %s: %d / Inital wait: %d\n", check.IntervalEnv, check.Interval, initWait)
+		log.Printf("Scheduled: %s: %d / Initial wait: %d\n", check.IntervalEnv, check.Interval, initWait)
 
 		select {
 		case <-timer.C:
-			check.run()
+			check.Run()
 			break
 		case <-quit:
 			timer.Stop()
@@ -78,7 +78,7 @@ func (check *Check) Plan(quit chan bool) {
 		for {
 			select {
 			case <-ticker.C:
-				check.run()
+				check.Run()
 			case <-quit:
 				ticker.Stop()
 				return
@@ -87,7 +87,7 @@ func (check *Check) Plan(quit chan bool) {
 	}()
 }
 
-func (check *Check) run() {
+func (check *Check) Run() {
 	start := time.Now()
 	result, err := check.Fn(check)
 	runtime := time.Since(start)
@@ -135,6 +135,6 @@ func (check *Check) handleResult(runtime time.Duration, result map[string][]map[
 	} else if result != nil {
 		check.handleResult(runtime, nil, &CheckError{Sev: High, Err: err})
 	} else {
-		log.Printf("Unexcpected JSON pack error: %s", err)
+		log.Printf("Unexpected JSON pack error: %s", err)
 	}
 }
