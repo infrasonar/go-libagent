@@ -120,6 +120,7 @@ func (check *Check) handleResult(runtime time.Duration, result map[string][]map[
 			"severity": severity,
 			"message":  err.Error(),
 		}
+		log.Printf("Check error [%s]: %s", severity, err.Error())
 	}
 
 	data, err := json.Marshal(body)
