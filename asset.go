@@ -129,6 +129,8 @@ func (asset *Asset) IsDisabled(checkKey string) bool {
 				d.list = append(d.list, dc.Check)
 			}
 		}
+
+		d.age = time.Now()
 	}
 
 	return slices.Contains(d.list, checkKey)
