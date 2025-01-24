@@ -88,6 +88,9 @@ func (check *Check) Plan(quit chan bool) {
 }
 
 func (check *Check) Run() {
+	if check.Asset.IsDisabled(check.Key) {
+		return
+	}
 	start := time.Now()
 	result, err := check.Fn(check)
 	runtime := time.Since(start)

@@ -6,26 +6,51 @@ import (
 	"log"
 	"os"
 	"path"
+	"slices"
 	"strconv"
+	"time"
 )
 
+type DisabledChecksApi struct {
+	DisabledChecks []struct {
+		Collector string `json:"collector"`
+		Check     string `json:"check"`
+	} `json:"disabledChecks"`
+}
+
 type Asset struct {
-	Id        int `json:"assetId"`
-	Name      string
-	Kind      string
-	assetFile string
-	collector *Collector
+	Id                   int `json:"assetId"`
+	Name                 string
+	Kind                 string
+	assetFile            string
+	collector            *Collector
+	disabledChecks       []string
+	disabledChecksAge    time.Time
+	disabledChecksAgeMax time.Duration
 }
 
 func NewAsset(collector *Collector) *Asset {
+	disabledChecksCacheAge := os.Getenv("DISABLED_CHECKS_CACHE_AGE")
+	if disabledChecksCacheAge == "" {
+		disabledChecksCacheAge = "15m"
+	}
+	disabledChecksAgeMax, err := time.ParseDuration(disabledChecksCacheAge)
+	if err != nil {
+		log.Println("Invalid DISABLED_CHECKS_CACHE_AGE environment variable")
+		disabledChecksAgeMax = time.Duration(time.Minute * 15)
+	}
+
 	assetIdEnv := os.Getenv("ASSET_ID")
 	if assetIdEnv != "" {
 		assetId, err := strconv.Atoi(assetIdEnv)
 		if err == nil && assetId > 0 {
 			log.Println("Using ASSET_ID environment variable for asset announcement")
 			return &Asset{
-				Id:        assetId,
-				collector: collector,
+				Id:                   assetId,
+				collector:            collector,
+				disabledChecks:       []string{},
+				disabledChecksAge:    time.Time{},
+				disabledChecksAgeMax: disabledChecksAgeMax,
 			}
 		}
 		log.Println("Invalid ASSET_ID environment variable")
@@ -56,10 +81,40 @@ func NewAsset(collector *Collector) *Asset {
 	}
 
 	return &Asset{
-		Id:        0,
-		assetFile: assetFile,
-		collector: collector,
+		Id:                   0,
+		assetFile:            assetFile,
+		collector:            collector,
+		disabledChecks:       []string{},
+		disabledChecksAge:    time.Time{},
+		disabledChecksAgeMax: disabledChecksAgeMax,
 	}
+}
+
+func (asset *Asset) IsDisabled(checkKey string) bool {
+	if time.Since(asset.disabledChecksAge) > asset.disabledChecksAgeMax {
+		asset.disabledChecks = []string{}
+
+		if asset.Id == 0 {
+			return false
+		}
+
+		h := GetHelper()
+		uri := fmt.Sprintf("/asset/%d?fields=disabledChecks", asset.Id)
+
+		t := DisabledChecksApi{}
+		err := h.Get(uri, &t, 90)
+		if err != nil {
+			log.Println(err)
+			return false
+		}
+
+		for _, dc := range t.DisabledChecks {
+			if dc.Collector == asset.collector.Key {
+				asset.disabledChecks = append(asset.disabledChecks, dc.Check)
+			}
+		}
+	}
+	return slices.Contains(asset.disabledChecks, checkKey)
 }
 
 func (asset *Asset) Announce() {

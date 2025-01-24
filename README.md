@@ -16,7 +16,7 @@ Environment                 | Default                       | Description
 `API_URI`                   | https://api.infrasonar.com    | InfraSonar API.
 `SKIP_VERIFY`               | _none_						| Set to `1` or something else to skip certificate validation.
 `CHECK_XXX_INTERVAL`        | `300`                         | Interval in seconds for the `xxx` check or `0` to disable the check. _(should be one environment variable for each check)_
-
+`DISABLED_CHECKS_CACHE_AGE` | `15m`					        | Keep disabled checks cache for 15 minutes.
 
 ## Floating points
 
